@@ -1,20 +1,19 @@
-import mongoose from "mongoose";
-
+import mongoose from 'mongoose';
 
 const BlogSchema = new mongoose.Schema({
-    tiile: {
+    title: {
         type: String,
-        require: true
+        required: true
     },
     description: {
         type: String
-    }, image: {
-        type: String,
-        require: true
     },
+    image: {
+        type: String,
+        required: true
+    }
 }, {
     timestamps: true
-})
+});
 
-
-export default mongoose.model("blog", BlogSchema)
+export default mongoose.model('Blog', BlogSchema);

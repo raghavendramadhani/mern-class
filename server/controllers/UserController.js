@@ -1,59 +1,68 @@
-import UserModel from "../Model/UserModel.js"
-import bcrypt from "bcryptjs"
-import jwt from "jsonwebtoken"
+import UserModel from "../Model/UserModel.js";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+const JWT_SECRET = "hfguhbjhvgyghjhvgygcftyhvfyuj";
 
-const JWT_SECRET = "hfguhbjhvgyghjhvgygcftyhvfyuj"
-export async function CreareUser(req, res) {
+export async function createUser(req, res) {
     try {
-        const { name, email, password } = req.body
-        const ExistingUser = await UserModel.findOne({ email })
+        const { name, email, password } = req.body;
+
         if (!name || !email || !password) {
-            return res.status(404).json({ message: "All values are required" })
+            return res.status(400).json({ message: "All fields are required" });
         }
-        const hashpassword = bcrypt.hashSync(password)
-        if (ExistingUser) {
-            return res.status(404).json({ message: "Please login" })
-        }
-        await UserModel.create({ ...req.body, password: hashpassword })
 
-        return res.status(200).json({ message: "User is created suuccesfully" })
+        const existingUser = await UserModel.findOne({ email });
+        if (existingUser) {
+            return res.status(409).json({ message: "User already exists, please login" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await UserModel.create({ ...req.body, password: hashedPassword });
+
+        return res.status(201).json({ message: "User created successfully" });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
-export async function Login(req, res) {
+export async function login(req, res) {
     try {
-        const { email, password } = req.body
-        const ExistingUser = await UserModel.findOne({ email })
-        const checkPassword = bcrypt.compareSync(password, ExistingUser.password)
+        const { email, password } = req.body;
 
-        if (!ExistingUser) {
-            return res.status(400).json({ message: "No user found" })
-
-        } else if (password !== ExistingUser.password) {
-            return res.status(400).json({ message: "Incorrect password" })
-
-        } else if (!checkPassword) {
-            return res.status(400).json({ message: "Incorrect password" })
+        if (!email || !password) {
+            return res.status(400).json({ message: "Email and password are required" });
         }
-        const token = jwt.sign({ id: ExistingUser._id, JWT_SECRET, epxpiresIn: "10m" })
-        return res.status(200).json({ message: "Login successfully", ExistingUser })
 
+        const existingUser = await UserModel.findOne({ email });
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        const checkPassword = await bcrypt.compare(password, existingUser.password);
+        if (!checkPassword) {
+            return res.status(401).json({ message: "Incorrect password" });
+        }
+
+        const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, { expiresIn: "1h" });
+        return res.status(200).json({ message: "Login successful", token });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
 
-export async function GetMydetails(req, res) {
+export async function getMyDetails(req, res) {
     try {
-        const ExistingUser = await UserModel.findById(req.params.id)
-        if (!ExistingUser) {
-            return res.status(400).json({ message: "No user" })
-        }
-        return res.status(200).json({ ExistingUser })
+        const userId = req.params.id;
+        const existingUser = await UserModel.findById(userId).populate("MyBlogs");
 
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        return res.status(200).json({ user: existingUser });
     } catch (error) {
-        console.log(error)
+        console.error(error);
+        return res.status(500).json({ message: "Internal Server Error" });
     }
 }
