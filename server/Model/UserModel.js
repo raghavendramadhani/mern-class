@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-const schema = mongoose.Schema()
 
 const UserSchema = new mongoose.Schema({
     name: {
@@ -13,6 +12,10 @@ const UserSchema = new mongoose.Schema({
     }, password: {
         type: String,
         require: true
+    },
+    MyBlogs: {
+        type: mongoose.Types.ObjectId,
+        ref: "blog"
     }
 })
 

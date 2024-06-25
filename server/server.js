@@ -2,11 +2,13 @@ import express from "express"
 import cors from "cors"
 import mongoose from "mongoose"
 import routes from "./Routes/userRoutes.js"
+import BlogRoute from "./Routes/BlogRoutes.js"
 
 const app = express()
 app.use(express.json())
 app.use(cors())
 app.use(routes)
+app.use(BlogRoute)
 app.get('/endpoint',(req,res)=>{
     return res.status(200).json({
         name:"nani"
