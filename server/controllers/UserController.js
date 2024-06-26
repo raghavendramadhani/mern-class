@@ -13,7 +13,7 @@ export async function createUser(req, res) {
 
         const existingUser = await UserModel.findOne({ email });
         if (existingUser) {
-            return res.status(409).json({ message: "User already exists, please login" });
+            return res.status(400).json({ message: "User already exists, please login" });
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);

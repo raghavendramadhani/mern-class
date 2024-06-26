@@ -29,3 +29,34 @@ export async function CreateBlog(req, res) {
         return res.status(500).json({ message: "Server error" });
     }
 }
+
+export async function AllBlogs(req, res) {
+    try {
+        const Blogs = await BlogModel.find({})
+        return res.status(200).json({ Blogs })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function UpdateBlog(req, res) {
+    try {
+        const Upadate = await BlogModel.findByIdAndUpdate(req.params.id, req.body)
+        await Upadate.save()
+        return res.status(200).json({ message: "Blog is updated successfully" })
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+export async function DleteBlog(req, res) {
+    try {
+        const DeleteBlog = await BlogModel.findByIdAndDelete(req.params.id)
+        if (!DeleteBlog) {
+            return res.status(400).json({ message: "No blog found to delete" })
+        }
+        return res.status(200).json({ message: 'Deleted successfully' })
+    } catch (error) {
+        console.log(error)
+    }
+}
