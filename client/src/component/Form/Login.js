@@ -1,45 +1,45 @@
-import React, { useState } from 'react'
-import axios from "axios"
-export default function Login() {
+import React, { useState } from 'react';
+import axios from "axios";
+import { Link } from 'react-router-dom';
+import '../../App.css'; // Import your CSS file
+
+export default function Login({ Login }) {
     const [userDetails, setUserDetails] = useState({
         email: "",
         password: ""
-    })
-    const [errorMessage, setErrorMessage] = useState("")
-    console.log(userDetails)
+    });
+    const [errorMessage, setErrorMessage] = useState("");
 
-    const handleChage = (e) => {
-        const { value, name } = e.target
-        console.log(name, value)
-
-        setUserDetails((ps) => ({ ...ps, [name]: value }))
-    }
+    const handleChange = (e) => {
+        const { value, name } = e.target;
+        setUserDetails(prevState => ({ ...prevState, [name]: value }));
+    };
 
     const formSubmit = (e) => {
-        e.preventDefault()
-    }
+        e.preventDefault();
+    };
 
-    const PostData = async () => {
+    const postData = async () => {
         try {
-            const res = await axios.post("http://localhost:5000/login", userDetails)
-            console.log(res)
-            localStorage.setItem("Token",res.data.token)
+            const res = await axios.post("http://localhost:5000/login", userDetails);
+            if (res.data.success === true) {
+                localStorage.setItem("Token", res.data.token);
+                Login();
+            }
         } catch (error) {
-            setErrorMessage(error.response.data.message)
-            console.log(error)
+            setErrorMessage(error.response.data.message);
         }
-    }
+    };
 
-    const getToken=localStorage.getItem("Token")
-    console.log(getToken)
     return (
-        <div className='reg-form'>
+        <div className='login-container'>
             {errorMessage && <p>{errorMessage}</p>}
-            <form className='reg-form' onSubmit={formSubmit}>
-                <input type='email' placeholder='email' value={userDetails.email} name="email" onChange={handleChage} required />
-                <input type='password' placeholder='password' value={userDetails.password} name="password" onChange={handleChage} required />
-                <button onClick={PostData}>Login</button>
+            <form className='login-form' onSubmit={formSubmit}>
+                <input type='email' placeholder='Email' value={userDetails.email} name="email" onChange={handleChange} required />
+                <input type='password' placeholder='Password' value={userDetails.password} name="password" onChange={handleChange} required />
+                <button type="button" onClick={postData}>Login</button>
             </form>
+            <Link to="/register">Register</Link>
         </div>
-    )
+    );
 }

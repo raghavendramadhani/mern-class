@@ -45,7 +45,7 @@ export async function login(req, res) {
         }
 
         const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, { expiresIn: "1h" });
-        return res.status(200).json({ message: "Login successful", token });
+        return res.status(200).json({ message: "Login successful", token, success: true });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal Server Error" });
@@ -54,8 +54,8 @@ export async function login(req, res) {
 
 export async function getMyDetails(req, res) {
     try {
-        const userId = req.params.id;
-        const existingUser = await UserModel.findById(userId).populate("MyBlogs");
+        const userId = req.userId;
+        const existingUser = await UserModel.findById(userId, "-password").populate("MyBlogs");
 
         if (!existingUser) {
             return res.status(404).json({ message: "User not found" });

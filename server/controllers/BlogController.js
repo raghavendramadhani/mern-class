@@ -9,7 +9,8 @@ export async function CreateBlog(req, res) {
             return res.status(400).json({ message: "All fields are required" });
         }
 
-        const existingUser = await UserModel.findById(req.params.id);
+        const existingUser = await UserModel.findById(req.userId);
+        console.log(existingUser)
         if (!existingUser) {
             return res.status(404).json({ message: "User not found" });
         }
@@ -41,9 +42,10 @@ export async function AllBlogs(req, res) {
 
 export async function UpdateBlog(req, res) {
     try {
+        console.log(req.params.id)
         const Upadate = await BlogModel.findByIdAndUpdate(req.params.id, req.body)
         await Upadate.save()
-        return res.status(200).json({ message: "Blog is updated successfully" })
+        return res.status(200).json({ message: "Blog is updated successfully", success: true })
     } catch (error) {
         console.log(error)
     }
@@ -51,6 +53,14 @@ export async function UpdateBlog(req, res) {
 
 export async function DleteBlog(req, res) {
     try {
+        const existingUser = await UserModel.findById(req.userId);
+        console.log(existingUser)
+        if (!existingUser) {
+            return res.status(404).json({ message: "User not found" });
+        }
+        await existingUser.MyBlogs.pull(req.params.id)
+        await existingUser.save()
+
         const DeleteBlog = await BlogModel.findByIdAndDelete(req.params.id)
         if (!DeleteBlog) {
             return res.status(400).json({ message: "No blog found to delete" })
