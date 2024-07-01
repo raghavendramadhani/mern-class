@@ -19,7 +19,7 @@ export async function createUser(req, res) {
         const hashedPassword = await bcrypt.hash(password, 10);
         await UserModel.create({ ...req.body, password: hashedPassword });
 
-        return res.status(201).json({ message: "User created successfully" });
+        return res.status(201).json({ message: "User created successfully", success: true });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Internal Server Error" });

@@ -42,7 +42,6 @@ export async function AllBlogs(req, res) {
 
 export async function UpdateBlog(req, res) {
     try {
-        console.log(req.params.id)
         const Upadate = await BlogModel.findByIdAndUpdate(req.params.id, req.body)
         await Upadate.save()
         return res.status(200).json({ message: "Blog is updated successfully", success: true })
